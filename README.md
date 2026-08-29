@@ -1,10 +1,10 @@
-# dockervuln
+
 # DevSecOps Pipeline: Automated DAST & Container Security Scanning
 
-## 📌 Executive Summary
-This project demonstrates an automated DevSecOps workflow designed to detect security vulnerabilities in a target web application using open-source security tools. 
+## 📌 Overall Summary
+I created this project demonstrates an automated DevSecOps workflow designed to detect security vulnerabilities in a target web application using open-source security tools. 
 
-Using GitHub Actions, the pipeline spins up a intentionally vulnerable web server ([OWASP Juice Shop](https://owasp.org/www-project-juice-shop/)) via Docker, verifies host reachability, and executes dynamic security tests using **OWASP ZAP** alongside container image analysis. Findings are automatically aggregated and dispatched to the repository's GitHub Issues tab for triaging.
+Using GitHub Actions, the pipeline spins up an intentionally vulnerable web server ([OWASP Juice Shop](https://owasp.org/www-project-juice-shop/)) via Docker, verifies host reachability, and runs dynamic security tests with **OWASP ZAP** alongside container image analysis. Findings are automatically aggregated and dispatched to the repository's GitHub Issues tab for triaging.
 
 ---
 
@@ -17,4 +17,4 @@ Using GitHub Actions, the pipeline spins up a intentionally vulnerable web serve
 
 ---
 
-## ⚙️ Architecture & Pipeline Flow
+Feel free to message me about any questions
