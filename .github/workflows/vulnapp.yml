@@ -48,11 +48,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
         ISSUE_NUM: ${{ steps.scan-zap.outputs.issue_number }} ##gets the issue number
         REMEDIATION: ${{ steps.parse-json.outputs.remediation_body }} #gets the remediation body
-      run: |
-        if [ -n "$ISSUE_NUM" ]; then
-          gh issue edit "$ISSUE_NUM" --body "$REMEDIATION"
-        else
-          echo "No issue number returned from ZAP scan step."
-        fi
+      run: gh issue comment 2 --body "$REMEDIATION"
+  
       
         
