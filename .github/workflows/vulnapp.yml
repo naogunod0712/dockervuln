@@ -25,7 +25,7 @@ jobs:
       uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25
       with:
         # GitHub Token to create issues in the repository
-        token: # optional, default is ${{ github.token }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         # Target URL
         target: http://localhost:3000
         issue_title: ZAP issue report
