@@ -1,9 +1,9 @@
 # DevSecOps Pipeline: Automated DAST & Developer Remediation Engine
 
-## 📌 Executive Summary
-This project demonstrates an automated DevSecOps workflow designed to perform Dynamic Application Security Testing (DAST) on an intentionally vulnerable web server ([OWASP Juice Shop](https://hub.docker.com/r/bkimminich/juice-shop)) running inside Docker. 
+## Summary
+I created and worked on project to demonstrates an automated DevSecOps workflow designed to perform Dynamic Application Security Testing (DAST) on an intentionally vulnerable web server ([OWASP Juice Shop](https://hub.docker.com/r/bkimminich/juice-shop)) running inside Docker. 
 
-Beyond standard vulnerability reporting, this project features a **Developer Remediation Engine** that extracts vulnerability fixes from the OWASP ZAP scan artifacts and posts them directly as a sub-comment on the generated GitHub Issue.
+Beyond standard vulnerability reporting, this project features a **Developer Remediation Engine** that extracts vulnerability fixes from the OWASP ZAP scan artifacts and posts them directly as a sub-comment on the generated GitHub Issue, allowing devs have immediate notice on how to fix issues
 
 ---
 
