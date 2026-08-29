@@ -5,7 +5,7 @@ on:
 
 permissions: 
   contents: read
-  issues: read
+  issues: write
   pull-requests: write
 
 jobs:
@@ -18,4 +18,18 @@ jobs:
       uses: docker/setup-docker-action@v5
 
     - name: Docker pull and run
-      run: "docker pull bkimminich/juice-shop && docker run --rm -p 3000:3000 bkimminich/juice-shop" 
+      run: "docker pull bkimminich/juice-shop && docker run --rm -d -p 3000:3000 bkimminich/juice-shop" 
+
+    - name: ZAP Baseline Scan
+      id: scan-zap
+      uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25
+      with:
+        # GitHub Token to create issues in the repository
+        token: # optional, default is ${{ github.token }}
+        # Target URL
+        target: http://localhost:3000
+        issue_title: ZAP issue report
+        # The action status will be set to fail if ZAP identifies any alerts during the baseline scan
+        artifact_name: Zap results
+
+        
