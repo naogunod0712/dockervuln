@@ -36,9 +36,7 @@ jobs:
       uses: actions/download-artifact@v3.1.0
       with:
         # Artifact name
-        name: # Zap-results
-        # Destination path
-        path: # optional
+        name: Zap-results
 
     - name: Parse JSON to be sent
       run: jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json >> $GITHUB_OUTPUT
