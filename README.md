@@ -7,7 +7,7 @@ Beyond standard vulnerability reporting, this project features a **Developer Rem
 
 ---
 
-## 🛠️ Tools & Technologies Used
+## Tools & Technologies Used
 
 * **Target Application:** OWASP Juice Shop (Containerized via Docker)
 * **CI/CD Orchestration:** GitHub Actions
@@ -17,7 +17,7 @@ Beyond standard vulnerability reporting, this project features a **Developer Rem
 
 ---
 
-## 🏗️ Workflows & Architecture Comparison
+## Workflows & Architecture Comparison
 
 The repository includes two separate GitHub Action workflow configurations to showcase workflow evolution:
 
@@ -33,7 +33,7 @@ During initial testing with a single-job workflow, posting a remediation sub-com
 
 ---
 
-## 💡 Developer Experience (DX)
+##  Developer Experience (DX)
 
 Instead of forcing developers to read through raw log files or heavy report zips, I wanted them to have: 
 1. **Automated Alerting:** The pipeline opens a high-level tracking issue outlining all identified vulnerability alerts through Zap
