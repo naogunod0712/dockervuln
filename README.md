@@ -10,7 +10,7 @@ Beyond standard vulnerability reporting, this project features a **Developer Rem
 ## 🛠️ Tools & Technologies Used
 
 * **Target Application:** OWASP Juice Shop (Containerized via Docker)
-* **CI/CD Orchestration:** GitHub Actions (Multi-job workflow architecture)
+* **CI/CD Orchestration:** GitHub Actions
 * **DAST Scanner:** OWASP ZAP (Zed Attack Proxy - Baseline Scan)
 * **JSON Parser & CLI:** `jq` & GitHub CLI (`gh`)
 * **Reporting & Alerting:** GitHub Issues & Artifact Management
@@ -21,13 +21,13 @@ Beyond standard vulnerability reporting, this project features a **Developer Rem
 
 The repository includes two separate GitHub Action workflow configurations to showcase workflow evolution:
 
-1. **`vulnapp.yml` (Single-Job Baseline):** Runs the core DAST scan against the running container.
-2. **`vulnapp-decoupled.yml` (Multi-Job Remediation Architecture):** Decouples the security scan from the remediation processing to overcome pipeline lifecycle constraints.
+1. **`vulnapp.yml` (Single-Job Baseline):** Runs the core DAST scan against the running container. First ym I created
+2. **`vulnapp-decoupled.yml` (Multi-Job Remediation Architecture):** Decouples the security scan from the remediation processing to overcome pipeline lifecycle constraints that I was facing.
 
-### The Problem Solved (Decoupling Rationale)
+### Issue and Problem Solved
 During initial testing with a single-job workflow, posting a remediation sub-comment failed. The OWASP ZAP Action creates or updates the target GitHub Issue at the very end of its execution phase. Attempting to comment on the issue in a subsequent step within the *same* job failed because the issue number did not exist yet in the GitHub repository.
 
-**The Solution:** Decoupling the pipeline into two dependent jobs (`needs: zap-scan-job`). 
+**The Solution:** Decoupling the pipeline into two dependent jobs. This is what made me create the second yml, to test if my idea would work 
 * **Job 1** handles container execution, scanning, artifact upload, and initial GitHub Issue creation.
 * **Job 2** runs sequentially after Job 1 finishes, downloads the scan artifacts, queries GitHub for the newly opened issue, extracts developer solutions from JSON using `jq`, and posts an actionable remediation guide as a sub-comment.
 
@@ -35,13 +35,13 @@ During initial testing with a single-job workflow, posting a remediation sub-com
 
 ## 💡 Developer Experience (DX)
 
-Instead of forcing developers to read through raw log files or heavy report zips:
-1. **Automated Alerting:** The pipeline opens a high-level tracking issue outlining all identified vulnerability alerts.
+Instead of forcing developers to read through raw log files or heavy report zips, I wanted them to have: 
+1. **Automated Alerting:** The pipeline opens a high-level tracking issue outlining all identified vulnerability alerts through Zap
 2. **Actionable Fixes:** The remediation engine immediately adds a sub-comment titled `### 🛠️ [Vulnerability Name]` containing exact steps on **How to Fix** the security flaw, directly referencing OWASP solutions.
 
 ---
 
-## 📚 Official Documentation & References
+##  Official Documentation & References
 
 The following official documentation was what I read to help me build this workflow
 
@@ -49,3 +49,5 @@ The following official documentation was what I read to help me build this workf
 * **DAST Scanner Data:** [OWASP ZAP Traditional JSON Report Structure](https://www.zaproxy.org/docs/desktop/addons/report-generation/report-traditional-json/)
 * **Issue Querying:** [GitHub CLI Manual (`gh issue list`)](https://cli.github.com/manual/gh_issue_list)
 * **Pipeline Syntax:** [GitHub Actions Workflow Syntax (Jobs & Steps ID)](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsid)
+
+
