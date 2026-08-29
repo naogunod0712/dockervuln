@@ -35,39 +35,38 @@ jobs:
         # The action status will be set to fail if ZAP identifies any alerts during the baseline scan
         artifact_name: Zap-results
 
-
     - name: Find ZAP Issue Number & Parse Remediation
       id: process-remediation
       env:
-          GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
-          run: |
-            # 1. Search GitHub for the issue number matching the ZAP title
-            ISSUE_NUM=$(gh issue list --state open --search "ZAP issue report in:title" --json number --jq '.[0].number')
-            
-            # 2. Check if an issue was found (ZAP only creates an issue if alerts exist)
-            if [ -n "$ISSUE_NUM" ] && [ "$ISSUE_NUM" != "null" ]; then
-              echo "found_issue=true" >> $GITHUB_OUTPUT
-              echo "issue_num=$ISSUE_NUM" >> $GITHUB_OUTPUT
-              
-              # 3. Extract the name & solution fields from the ZAP JSON report
-              EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-              {
-                echo "remediation_body<<$EOF"
-                jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json
-                echo "$EOF"
-              } >> $GITHUB_OUTPUT
-            else
-              echo "found_issue=false" >> $GITHUB_OUTPUT
-              echo "No open ZAP issue found. Skipping comment step."
-            fi
-    
-        - name: Update GitHub Issue with Remediation
-          if: steps.process-remediation.outputs.found_issue == 'true'
-          env:
-            GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
-            ISSUE_NUM: ${{ steps.process-remediation.outputs.issue_num }}
-            REMEDIATION: ${{ steps.process-remediation.outputs.remediation_body }}
-          run: gh issue comment "$ISSUE_NUM" --body "$REMEDIATION"
+        GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
+      run: |
+        # 1. Search GitHub for the issue number matching the ZAP title
+        ISSUE_NUM=$(gh issue list --state open --search "ZAP issue report in:title" --json number --jq '.[0].number')
+        
+        # 2. Check if an issue was found (ZAP only creates an issue if alerts exist)
+        if [ -n "$ISSUE_NUM" ] && [ "$ISSUE_NUM" != "null" ]; then
+          echo "found_issue=true" >> $GITHUB_OUTPUT
+          echo "issue_num=$ISSUE_NUM" >> $GITHUB_OUTPUT
+          
+          # 3. Extract the name & solution fields from the ZAP JSON report
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          {
+            echo "remediation_body<<$EOF"
+            jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json
+            echo "$EOF"
+          } >> $GITHUB_OUTPUT
+        else
+          echo "found_issue=false" >> $GITHUB_OUTPUT
+          echo "No open ZAP issue found. Skipping comment step."
+        fi
+
+    - name: Update GitHub Issue with Remediation
+      if: steps.process-remediation.outputs.found_issue == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
+        ISSUE_NUM: ${{ steps.process-remediation.outputs.issue_num }}
+        REMEDIATION: ${{ steps.process-remediation.outputs.remediation_body }}
+      run: gh issue comment "$ISSUE_NUM" --body "$REMEDIATION"
   
       
         
