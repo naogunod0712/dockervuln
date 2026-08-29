@@ -1,0 +1,85 @@
+name: Docker w Vulnerable App
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  # ==========================================
+  # JOB 1: Spin up container & run ZAP scan
+  # ==========================================
+  zap-scan-job:
+    name: Run App & ZAP Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Docker Setup
+        uses: docker/setup-docker-action@v5
+
+      - name: Docker pull and run
+        run: "docker pull bkimminich/juice-shop && docker run --rm -d -p 3000:3000 bkimminich/juice-shop"
+
+      - name: ZAP Baseline Scan
+        id: scan-zap
+        uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25
+        with:
+          token: ${{ secrets.GITHUBB_REPO_TOKEN }}
+          target: http://localhost:3000
+          issue_title: ZAP issue report
+          artifact_name: Zap-results
+
+
+  # JOB 2: Extract solutions & update the issue
+
+  remediation-job:
+    name: Parse JSON & Post Solution
+    needs: zap-scan-job  # Ensures Job 1 completes first
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download ZAP Artifacts from Job 1
+        uses: actions/download-artifact@v4
+        with:
+          name: Zap-results
+          path: .  # Downloads report_json.json into workspace root
+
+      - name: Find ZAP Issue Number & Parse Remediation
+        id: process-remediation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
+        run: |
+          # 1. Search for the issue created/updated by ZAP in Job 1
+          ISSUE_NUM=$(gh issue list --state open --search "ZAP issue report in:title" --json number --jq '.[0].number')
+          
+          # 2. Verify issue exists
+          if [ -n "$ISSUE_NUM" ] && [ "$ISSUE_NUM" != "null" ]; then
+            echo "found_issue=true" >> $GITHUB_OUTPUT
+            echo "issue_num=$ISSUE_NUM" >> $GITHUB_OUTPUT
+            
+            # 3. Extract Name & Solution fields into Markdown format
+            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+            {
+              echo "remediation_body<<$EOF"
+              jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json
+              echo "$EOF"
+            } >> $GITHUB_OUTPUT
+          else
+            echo "found_issue=false" >> $GITHUB_OUTPUT
+            echo "No open ZAP issue found. Skipping comment step."
+          fi
+
+      - name: Update GitHub Issue with Remediation
+        if: steps.process-remediation.outputs.found_issue == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
+          ISSUE_NUM: ${{ steps.process-remediation.outputs.issue_num }}
+          REMEDIATION: ${{ steps.process-remediation.outputs.remediation_body }}
+        run: gh issue comment "$ISSUE_NUM" --body "$REMEDIATION"
