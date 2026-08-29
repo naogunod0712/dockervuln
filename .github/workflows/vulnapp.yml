@@ -31,25 +31,28 @@ jobs:
         issue_title: ZAP issue report
         # The action status will be set to fail if ZAP identifies any alerts during the baseline scan
         artifact_name: Zap-results
-        
-    - name: Download a Build Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: Zap-results
-      continue-on-error: true
-    
-    - name: Verify artifact exists
-      run: |
-        if [ ! -f "report_json.json" ]; then
-          echo "Artifact download failed, attempting recovery..."
-          exit 1
-        fi
+
 
     - name: Parse JSON to be sent
-      run: jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json >> $GITHUB_OUTPUT
+      id: parse-json
+      run: |
+        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+        {
+          echo "remediation_body<<$EOF"
+          jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json
+          echo "$EOF"
+        } >> $GITHUB_OUTPUT
 
     - name: Update the GitHub issue board
-      run: gh issue {{steps.scan-zap.outputs.issue_number}} --body $GITHUB_OUTPUT
-
+      env:
+        GH_TOKEN: ${{ secrets.GITHUBB_REPO_TOKEN }}
+        ISSUE_NUM: ${{ steps.scan-zap.outputs.issue_number }} ##gets the issue number
+        REMEDIATION: ${{ steps.parse-json.outputs.remediation_body }} #gets the remediation body
+      run: |
+        if [ -n "$ISSUE_NUM" ]; then
+          gh issue edit "$ISSUE_NUM" --body "$REMEDIATION"
+        else
+          echo "No issue number returned from ZAP scan step."
+        fi
       
         
