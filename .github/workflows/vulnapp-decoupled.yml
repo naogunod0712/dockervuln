@@ -1,4 +1,4 @@
-name: Docker w Vulnerable App
+name: Docker w Vulnerable App ( Decopuled for Enterprise)
 
 on:
   workflow_dispatch:
