@@ -30,6 +30,21 @@ jobs:
         target: http://localhost:3000
         issue_title: ZAP issue report
         # The action status will be set to fail if ZAP identifies any alerts during the baseline scan
-        artifact_name: Zap results
+        artifact_name: Zap-results
+        
+    - name: Download a Build Artifact
+      uses: actions/download-artifact@v3.1.0
+      with:
+        # Artifact name
+        name: # Zap-results
+        # Destination path
+        path: # optional
 
+    - name: Parse JSON to be sent
+      run: jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json >> $GITHUB_OUTPUT
+
+    - name: Update the GitHub issue board
+      run: gh issue {{steps.scan-zap.outputs.issue_number}} --body $GITHUB_OUTPUT
+
+      
         
