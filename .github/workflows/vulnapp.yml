@@ -1,0 +1,21 @@
+name: Docker w Vulnerable App concurrency
+
+on:
+  workflow_dispatch: 
+
+permissions: 
+  contents: read
+  issues: read
+  pull-requests: write
+
+jobs:
+  docker-setup:
+    name: Docker Compose 
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Docker Setup 
+      uses: docker/setup-docker-action@v5
+
+    - name: Docker pull and run
+      run: "docker pull bkimminich/juice-shop && docker run --rm -p 3000:3000 bkimminich/juice-shop" 
