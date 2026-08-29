@@ -9,9 +9,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  # ==========================================
   # JOB 1: Spin up container & run ZAP scan
-  # ==========================================
   zap-scan-job:
     name: Run App & ZAP Scan
     runs-on: ubuntu-latest
