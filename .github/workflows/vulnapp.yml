@@ -35,8 +35,15 @@ jobs:
     - name: Download a Build Artifact
       uses: actions/download-artifact@v4
       with:
-        # Artifact name
         name: Zap-results
+      continue-on-error: true
+    
+    - name: Verify artifact exists
+      run: |
+        if [ ! -f "report_json.json" ]; then
+          echo "Artifact download failed, attempting recovery..."
+          exit 1
+        fi
 
     - name: Parse JSON to be sent
       run: jq -r '.site[]?.alerts[]? | "### 🛠️ " + .name + "\n**How to Fix:**\n" + .solution + "\n\n---"' report_json.json >> $GITHUB_OUTPUT
